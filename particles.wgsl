@@ -77,10 +77,26 @@ fn computeParticles(
     let startX = random_from_u32(gii);
     let startY = random_from_u32(bitcast<u32>(startX));
 
+    var startRange = f32(uniforms.startRange);
+
     var pos = vec2f(
-        startX * f32(uniforms.startRange) * 2. - f32(uniforms.startRange),
-        startY * f32(uniforms.startRange) * 2. - f32(uniforms.startRange)
+        startX * startRange * 2. - startRange,
+        startY * startRange * 2. - startRange
     );
+
+    let ratio = f32(dimX) / f32(dimY);
+    var mX = 1.;
+    var mY = 1.;
+    var oX = 0.;
+    var oY = 0.;
+
+    if (ratio > 1.) {
+        mX = 1. / ratio;
+        oX = (f32(dimX) - f32(dimY)) / 2.;
+    } else {
+        mY = ratio;
+        oY = (f32(dimY) - f32(dimX)) / 2.;
+    }
 
     for (var i = 0u; i < uniforms.iters; i++) {
 
@@ -88,8 +104,11 @@ fn computeParticles(
 
         if (i >= uniforms.discs) {
 
-            let newX = u32(round((pos.x + 1. / uniforms.zoom) * uniforms.zoom / 2. * f32(dimX)));
-            let newY = u32(round((-pos.y + 1. / uniforms.zoom) * uniforms.zoom / 2. * f32(dimY)));
+            var x2 = (pos.x + 1. / uniforms.zoom) * uniforms.zoom / 2. * f32(dimX) * mX + oX;
+            var y2 = (-pos.y + 1. / uniforms.zoom) * uniforms.zoom / 2. * f32(dimY) * mY + oY;
+
+            let newX = u32(round(x2));
+            let newY = u32(round(y2));
 
             if (newX >= 0 && newX < dimX && newY >= 0 && newY < dimY) {
                 atomicAdd(&finalBuffer[newY * dimX + newX], 1u);
