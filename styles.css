@@ -20,6 +20,7 @@ button, input[type=number] {
     padding: 5px;
     margin-right: 5px;
     transition: 0.3s;
+    text-align: center;
 }
 
 button {
@@ -127,4 +128,8 @@ input[type=range]::-webkit-slider-thumb, input[type=range]::-moz-range-thumb {
 
 .value-input-container table input[type=range] {
     width: 80%;
+}
+
+#value-particle-count-input {
+    width: 90px;
 }

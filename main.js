@@ -69,19 +69,11 @@ function setupNumberInput(id, getter, _setter, withSlider = true, defaultMin = -
         }
     }
 
-    make("p1000", 1000);
-    make("p100", 100);
-    make("p10", 10);
-    make("p1", 1);
-    make("p01", 0.1);
-    make("p001", 0.01);
-
-    make("m001", -0.01);
-    make("m01", -0.1);
-    make("m1", -1);
-    make("m10", -10);
-    make("m100", -100);
-    make("m1000", -1000);
+    [ 0.01, 0.1, 1, 10, 100, 1000, 10_000, 100_000, 1_000_000 ].forEach(n => {
+        const s = n.toString().replace(".", "");
+        make("m" + s, -n);
+        make("p" + s, n);
+    });
 
     input.onchange = () => {
         const newV = parseFloat(input.value);
@@ -179,6 +171,7 @@ setupNumberInput("value-c", () => c ?? 0, v => { c = v ?? c; draw(); });
 setupNumberInput("value-d", () => d ?? 0, v => { d = v ?? d; draw(); });
 
 setupNumberInput("value-particle-intensity", () => particleIntensity ?? 1, v => { particleIntensity = v ?? particleIntensity; draw(); }, true, 0, 1);
+setupNumberInput("value-particle-count", () => particleCount ?? 1000, v => { particleCount = v ?? particleCount; draw(); }, false);
 
 setupNumberInput("value-canvas-x", () => resolutionX ?? 0, v => { 
 
