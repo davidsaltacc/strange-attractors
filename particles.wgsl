@@ -48,6 +48,9 @@ fn random_from_vec4u(seed: vec4u) -> f32 { return float_construct_from_u32(hash_
 // https://piellardj.github.io/strange-attractors-webgl/ 
 // implement others from here? 
 
+// https://www.williamrchase.com/writing/2019-02-28-strange-attractors-12-months-of-art-february
+// lots of good ideas
+
 fn clifford(v: vec2f, a: f32, b: f32, c: f32, d: f32) -> vec2f {
     return vec2f(
         sin(a * v.y) + c * cos(a * v.x),
