@@ -74,6 +74,30 @@
         <p>Instead of using all iterations, the first few should be discarded. This is, because all particles start off completely randomly before falling into the shape of the attractor after a few iterations.</p>
         <h3>Particle Intensity</h3>
         <p>How much a single particle will be valued when coloring the attractor. Higher values will mean a bright image, but more noise. Think of it like the ISO of a camera.</p>
+        <div class="value-input-container">
+            <table>
+                <tr>
+                    <td>Manual input</td>
+                    <td>
+                        <button id="value-particle-intensity-button-m1">-1</button>
+                        <button id="value-particle-intensity-button-m01">-0.1</button>
+                        <button id="value-particle-intensity-button-m001">-0.01</button>
+                        <input id="value-particle-intensity-input" type="number" title="Value">
+                        <button id="value-particle-intensity-button-p001">+0.01</button>
+                        <button id="value-particle-intensity-button-p01">+0.1</button>
+                        <button id="value-particle-intensity-button-p1">+1</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Slider input</td>
+                    <td>
+                        <input id="value-particle-intensity-slider-min" type="number" title="Slider min"></input>
+                        <input id="value-particle-intensity-slider-input" type="range" title="Value (slider)">
+                        <input id="value-particle-intensity-slider-max" type="number" title="Slider max"></input>
+                    </td>
+                </tr>
+            </table>
+        </div>
         <h3>a-d</h3>
         <p>The parameters a-d directly affect the attractor itself, changing its structure.</p>
         <div class="value-input-container">
@@ -103,7 +127,7 @@
                 </tr>
             </table>
         </div>
-        <div class="value-input-container" id="value-b">
+        <div class="value-input-container">
             <h3>b</h3>
             <table>
                 <tr>
@@ -130,7 +154,7 @@
                 </tr>
             </table>
         </div>
-        <div class="value-input-container" id="value-c">
+        <div class="value-input-container">
             <h3>c</h3>
             <table>
                 <tr>
@@ -157,7 +181,7 @@
                 </tr>
             </table>
         </div>
-        <div class="value-input-container" id="value-d">
+        <div class="value-input-container">
             <h3>d</h3>
             <table>
                 <tr>

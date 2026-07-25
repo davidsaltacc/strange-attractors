@@ -2,7 +2,8 @@
 @group(0) @binding(0) var<storage, read_write> particleCounts: array<u32>;
 
 struct Uniforms {
-    size: vec2u
+    size: vec2u,
+    particleIntensity: f32
 };
 
 @group(0) @binding(1) var<uniform> uniforms: Uniforms;
@@ -33,7 +34,7 @@ fn fragment(
     let i = u32(floor(pos.y)) * dimX + u32(floor(pos.x));
     let value = particleCounts[i];
 
-    var v = saturate(f32(value) / 1800.);
+    var v = saturate(f32(value) / 1000. * uniforms.particleIntensity);
     v = pow(v, 0.65);
 
     return vec4f(v, pow(v, 0.85), pow(v, 0.65), 1.);

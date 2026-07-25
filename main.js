@@ -158,6 +158,7 @@ context.configure({
 let resolutionX = 500;
 let resolutionY = 500;
 let particleCount = 1_000_000;
+let particleIntensity = 0.3;
 let timeGPU = true;
 let iters = 20;
 let discs = 5;
@@ -170,10 +171,12 @@ let zoom = 0.33;
 
 let canDraw = false;
 
-setupNumberInput("value-a", () => a ?? 0, v => { a = v ?? 0; draw(); });
-setupNumberInput("value-b", () => b ?? 0, v => { b = v ?? 0; draw(); });
-setupNumberInput("value-c", () => c ?? 0, v => { c = v ?? 0; draw(); });
-setupNumberInput("value-d", () => d ?? 0, v => { d = v ?? 0; draw(); });
+setupNumberInput("value-a", () => a ?? 0, v => { a = v ?? a; draw(); });
+setupNumberInput("value-b", () => b ?? 0, v => { b = v ?? b; draw(); });
+setupNumberInput("value-c", () => c ?? 0, v => { c = v ?? c; draw(); });
+setupNumberInput("value-d", () => d ?? 0, v => { d = v ?? d; draw(); });
+
+setupNumberInput("value-particle-intensity", () => particleIntensity ?? 1, v => { particleIntensity = v ?? particleIntensity; draw(); }, true, 0, 1);
 
 setupNumberInput("value-canvas-x", () => resolutionX ?? 0, v => { 
 
@@ -223,7 +226,7 @@ const particleUniformBuffer = device.createBuffer({
 });
 
 const colorizationUniformBuffer = device.createBuffer({
-    size: 8,
+    size: 16,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
 });
 
@@ -242,9 +245,10 @@ const particleUniformsViews = {
     zoom: new Float32Array(particleUniformsValues, 36, 1)
 };
 
-const colorizationUniformsValues = new ArrayBuffer(8);
+const colorizationUniformsValues = new ArrayBuffer(16);
 const colorizationUniformsViews = {
-    size: new Uint32Array(colorizationUniformsValues)
+    size: new Uint32Array(colorizationUniformsValues, 0, 2),
+    particleIntensity: new Float32Array(colorizationUniformsValues, 8, 1)
 };
 
 // --- modules --- 
@@ -385,6 +389,8 @@ function draw(clearParticles = true) {
     particleUniformsViews.b[0] = b;
     particleUniformsViews.c[0] = c;
     particleUniformsViews.d[0] = d;
+
+    colorizationUniformsViews.particleIntensity[0] = particleIntensity;
 
     device.queue.writeBuffer(particleUniformBuffer, 0, particleUniformsValues);
     device.queue.writeBuffer(colorizationUniformBuffer, 0, colorizationUniformsValues);
