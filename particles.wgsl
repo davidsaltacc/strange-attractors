@@ -10,7 +10,8 @@ struct Uniforms {
     b: f32, 
     c: f32,
     d: f32,
-    zoom: f32
+    zoom: f32,
+    pan: vec2f
 };
 
 @group(0) @binding(1) var<uniform> uniforms: Uniforms;
@@ -111,8 +112,8 @@ fn computeParticles(
 
         if (i >= uniforms.discs) {
 
-            var x2 = (pos.x + 1. / uniforms.zoom) * uniforms.zoom / 2. * f32(dimX) * mX + oX;
-            var y2 = (-pos.y + 1. / uniforms.zoom) * uniforms.zoom / 2. * f32(dimY) * mY + oY;
+            var x2 = ((pos.x - uniforms.pan.x) + 1. / uniforms.zoom) * uniforms.zoom / 2. * f32(dimX) * mX + oX;
+            var y2 = ((-pos.y + uniforms.pan.y) + 1. / uniforms.zoom) * uniforms.zoom / 2. * f32(dimY) * mY + oY;
 
             let newX = u32(round(x2));
             let newY = u32(round(y2));

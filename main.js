@@ -167,6 +167,8 @@ let a = 2;
 let b = 2;
 let c = 1;
 let d = -1;
+let panX = 0;
+let panY = 0;
 let zoom = 0.33;
 
 let canDraw = false;
@@ -207,6 +209,61 @@ setupNumberInput("value-canvas-y", () => resolutionY ?? 0, v => {
 canvas.width = resolutionX;
 canvas.height = resolutionY;
 
+var mouseX = 0;
+var mouseY = 0;
+var mouseRightClicked = false;
+
+function updateMouseCoords(evt) {
+    const rect = evt.target.getBoundingClientRect();
+    mouseX = (2 * (evt.clientX - rect.left) - canvas.clientWidth) / canvas.clientWidth;
+    mouseY = -(2 * (evt.clientY - rect.top) - canvas.clientHeight) / canvas.clientHeight;
+    mouseX = mouseX / zoom + panX;
+    mouseY = mouseY / zoom + panY;
+}
+
+function onZoom(evt) {
+    evt.preventDefault();
+    const z = Math.exp(-evt.deltaY / 500);
+    updateMouseCoords(evt);
+    panX = mouseX + (panX - mouseX) / z;
+    panY = mouseY + (panY - mouseY) / z;
+    zoom *= z;
+    draw();
+}
+
+function mouseDown(evt) {
+    if (evt.button == 2) {
+        mouseRightClicked = true;
+    }
+    updateMouseCoords(evt);
+}
+
+function mouseUp(evt) {
+    if (evt.button == 2) {
+        mouseRightClicked = false;
+    }
+}
+
+function mouseMove(evt) {
+    if (mouseRightClicked) {
+
+        const oldX = mouseX;
+        const oldY = mouseY;
+        updateMouseCoords(evt);
+        panX += oldX - mouseX;
+        panY += oldY - mouseY;
+        updateMouseCoords(evt);
+
+        draw();
+    }
+}
+
+canvas.onwheel = onZoom;
+canvas.onmousedown = mouseDown;
+document.onmouseup = mouseUp;
+canvas.onmousemove = mouseMove;
+canvas.oncontextmenu = evt => evt.preventDefault();
+
 // --- buffers ---
 
 let particleCountBuffer;
@@ -221,7 +278,7 @@ function createParticleCountBuffer() {
 createParticleCountBuffer();
 
 const particleUniformBuffer = device.createBuffer({
-    size: 40,
+    size: 48,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
 });
 
@@ -232,7 +289,7 @@ const colorizationUniformBuffer = device.createBuffer({
 
 // --- uniform utility stuff ---
 
-const particleUniformsValues = new ArrayBuffer(40);
+const particleUniformsValues = new ArrayBuffer(48);
 const particleUniformsViews = {
     size: new Uint32Array(particleUniformsValues, 0, 2),
     iters: new Uint32Array(particleUniformsValues, 8, 1),
@@ -242,7 +299,8 @@ const particleUniformsViews = {
     b: new Float32Array(particleUniformsValues, 24, 1),
     c: new Float32Array(particleUniformsValues, 28, 1),
     d: new Float32Array(particleUniformsValues, 32, 1),
-    zoom: new Float32Array(particleUniformsValues, 36, 1)
+    zoom: new Float32Array(particleUniformsValues, 36, 1),
+    pan: new Float32Array(particleUniformsValues, 40, 2)
 };
 
 const colorizationUniformsValues = new ArrayBuffer(16);
@@ -384,6 +442,8 @@ function draw(clearParticles = true) {
     particleUniformsViews.iters[0] = iters;
     particleUniformsViews.discs[0] = discs;
     particleUniformsViews.startRange[0] = startRange;
+    particleUniformsViews.pan[0] = panX;
+    particleUniformsViews.pan[1] = panY;
     particleUniformsViews.zoom[0] = zoom;
     particleUniformsViews.a[0] = a;
     particleUniformsViews.b[0] = b;
