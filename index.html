@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attractors</title>
+    <script src="main.js" type="module" defer></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="canvas-container">
+        <div class="canvas-buttons">
+            <button onclick="saveDraft();" id="savePreviewButton">Save preview</button>
+            <button onclick="toggleCanvas();" id="hideCanvasButton">Hide canvas</button>
+        </div>
+        <canvas id="canvas" width="500" height="500"></canvas>
+    </div>
+    <div class="perf-container">
+        <table class="perf-table">
+            <tr>
+                <th colspan="2">performance info</th>
+            </tr>
+            <tr>
+                <td>cpu</td>
+                <td id="perf-cpu"></td>
+            </tr>
+            <tr>
+                <td>gpu compute</td>
+                <td id="perf-gpu-compute"></td>
+            </tr>
+            <tr>
+                <td>gpu render</td>
+                <td id="perf-gpu-render"></td>
+            </tr>
+        </table>
+    </div>
+    <div class="main-container">
+        <h1>Strange Attractors</h1>
+        <h2>The Canvas</h2>
+        <p>That's the thing on the right. It's just a preview, the final export will be of higher quality. Scroll to zoom, drag right click to pan. If you are on mobile, switch to desktop.</p>
+        <h2>Configuration Values</h2>
+        <p>Changing these values will affect the preview and the final render.</p>
+        <h3>Canvas Size</h3>
+        <p>Changes the size of the preview canvas.</p>
+        <div class="value-input-container">
+            <table>
+                <tr>
+                    <td>x</td>
+                    <td>
+                        <button id="value-canvas-x-button-m100">-100</button>
+                        <button id="value-canvas-x-button-m10">-10</button>
+                        <input id="value-canvas-x-input" type="number" title="Value">
+                        <button id="value-canvas-x-button-p10">+10</button>
+                        <button id="value-canvas-x-button-p100">+100</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>y</td>
+                    <td>
+                        <button id="value-canvas-y-button-m100">-100</button>
+                        <button id="value-canvas-y-button-m10">-10</button>
+                        <input id="value-canvas-y-input" type="number" title="Value">
+                        <button id="value-canvas-y-button-p10">+10</button>
+                        <button id="value-canvas-y-button-p100">+100</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <h3>Particle Count</h3>
+        <p>How many particles will be sent out. The more particles, the more detailed and clean, but also the brighter it will appear. Think of it like the shutter speed of a camera.</p>
+        <h3>Particle Iterations</h3>
+        <p>Literally does the sam thing as the particle count value. More iterations, more detail, more brightness. Think of it like the shutter speed of a camera too.</p>
+        <h3>Discard first X iterations</h3>
+        <p>Instead of using all iterations, the first few should be discarded. This is, because all particles start off completely randomly before falling into the shape of the attractor after a few iterations.</p>
+        <h3>Particle Intensity</h3>
+        <p>How much a single particle will be valued when coloring the attractor. Higher values will mean a bright image, but more noise. Think of it like the ISO of a camera.</p>
+        <h3>a-d</h3>
+        <p>The parameters a-d directly affect the attractor itself, changing its structure.</p>
+        <div class="value-input-container">
+            <h3>a</h3>
+            <table>
+                <tr>
+                    <td>Manual input</td>
+                    <td>
+                        <button id="value-a-button-m10">-10</button>
+                        <button id="value-a-button-m1">-1</button>
+                        <button id="value-a-button-m01">-0.1</button>
+                        <button id="value-a-button-m001">-0.01</button>
+                        <input id="value-a-input" type="number" title="Value">
+                        <button id="value-a-button-p001">+0.01</button>
+                        <button id="value-a-button-p01">+0.1</button>
+                        <button id="value-a-button-p1">+1</button>
+                        <button id="value-a-button-p10">+10</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Slider input</td>
+                    <td>
+                        <input id="value-a-slider-min" type="number" title="Slider min"></input>
+                        <input id="value-a-slider-input" type="range" title="Value (slider)">
+                        <input id="value-a-slider-max" type="number" title="Slider max"></input>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="value-input-container" id="value-b">
+            <h3>b</h3>
+            <table>
+                <tr>
+                    <td>Manual input</td>
+                    <td>
+                        <button id="value-b-button-m10">-10</button>
+                        <button id="value-b-button-m1">-1</button>
+                        <button id="value-b-button-m01">-0.1</button>
+                        <button id="value-b-button-m001">-0.01</button>
+                        <input id="value-b-input" type="number" title="Value">
+                        <button id="value-b-button-p001">+0.01</button>
+                        <button id="value-b-button-p01">+0.1</button>
+                        <button id="value-b-button-p1">+1</button>
+                        <button id="value-b-button-p10">+10</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Slider input</td>
+                    <td>
+                        <input id="value-b-slider-min" type="number" title="Slider min"></input>
+                        <input id="value-b-slider-input" type="range" title="Value (slider)">
+                        <input id="value-b-slider-max" type="number" title="Slider max"></input>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="value-input-container" id="value-c">
+            <h3>c</h3>
+            <table>
+                <tr>
+                    <td>Manual input</td>
+                    <td>
+                        <button id="value-c-button-m10">-10</button>
+                        <button id="value-c-button-m1">-1</button>
+                        <button id="value-c-button-m01">-0.1</button>
+                        <button id="value-c-button-m001">-0.01</button>
+                        <input id="value-c-input" type="number" title="Value">
+                        <button id="value-c-button-p001">+0.01</button>
+                        <button id="value-c-button-p01">+0.1</button>
+                        <button id="value-c-button-p1">+1</button>
+                        <button id="value-c-button-p10">+10</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Slider input</td>
+                    <td>
+                        <input id="value-c-slider-min" type="number" title="Slider min"></input>
+                        <input id="value-c-slider-input" type="range" title="Value (slider)">
+                        <input id="value-c-slider-max" type="number" title="Slider max"></input>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="value-input-container" id="value-d">
+            <h3>d</h3>
+            <table>
+                <tr>
+                    <td>Manual input</td>
+                    <td>
+                        <button id="value-d-button-m10">-10</button>
+                        <button id="value-d-button-m1">-1</button>
+                        <button id="value-d-button-m01">-0.1</button>
+                        <button id="value-d-button-m001">-0.01</button>
+                        <input id="value-d-input" type="number" title="Value">
+                        <button id="value-d-button-p001">+0.01</button>
+                        <button id="value-d-button-p01">+0.1</button>
+                        <button id="value-d-button-p1">+1</button>
+                        <button id="value-d-button-p10">+10</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Slider input</td>
+                    <td>
+                        <input id="value-d-slider-min" type="number" title="Slider min"></input>
+                        <input id="value-d-slider-input" type="range" title="Value (slider)">
+                        <input id="value-d-slider-max" type="number" title="Slider max"></input>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <noscript>This website will not work with javascript disabled.</noscript>
+    </div>
+</body>
+</html>
