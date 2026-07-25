@@ -89,8 +89,36 @@
         </div>
         <h3>Particle Iterations</h3>
         <p>Literally does the sam thing as the particle count value. More iterations, more detail, more brightness. Think of it like the shutter speed of a camera too.</p>
+        <div class="value-input-container">
+            <table>
+                <tr>
+                    <td>Particle Iterations</td>
+                    <td>
+                        <button id="value-particle-iterations-button-m10">-10</button>
+                        <button id="value-particle-iterations-button-m1">-1</button>
+                        <input id="value-particle-iterations-input" type="number" title="Value">
+                        <button id="value-particle-iterations-button-p1">+1</button>
+                        <button id="value-particle-iterations-button-p10">+10</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
         <h3>Discard first X iterations</h3>
-        <p>Instead of using all iterations, the first few should be discarded. This is, because all particles start off completely randomly before falling into the shape of the attractor after a few iterations.</p>
+        <p>Instead of using all iterations, the first few can be discarded. This is because all particles start in random positions instead of the shape of the attractor.</p>
+        <div class="value-input-container">
+            <table>
+                <tr>
+                    <td>Discard first</td>
+                    <td>
+                        <button id="value-iter-discards-button-m10">-10</button>
+                        <button id="value-iter-discards-button-m1">-1</button>
+                        <input id="value-iter-discards-input" type="number" title="Value">
+                        <button id="value-iter-discards-button-p1">+1</button>
+                        <button id="value-iter-discards-button-p10">+10</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
         <h3>Particle Intensity</h3>
         <p>How much a single particle will be valued when coloring the attractor. Higher values will mean a bright image, but more noise. Think of it like the ISO of a camera.</p>
         <div class="value-input-container">

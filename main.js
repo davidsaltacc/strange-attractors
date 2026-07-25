@@ -153,7 +153,7 @@ let particleCount = 1_000_000;
 let particleIntensity = 0.3;
 let timeGPU = true;
 let iters = 20;
-let discs = 5;
+let discs = 2;
 let startRange = 2;
 let a = 2;
 let b = 2;
@@ -172,6 +172,8 @@ setupNumberInput("value-d", () => d ?? 0, v => { d = v ?? d; draw(); });
 
 setupNumberInput("value-particle-intensity", () => particleIntensity ?? 1, v => { particleIntensity = v ?? particleIntensity; draw(); }, true, 0, 1);
 setupNumberInput("value-particle-count", () => particleCount ?? 1000, v => { particleCount = v ?? particleCount; draw(); }, false);
+setupNumberInput("value-particle-iterations", () => iters ?? 10, v => { iters = v ?? iters; draw(); }, false);
+setupNumberInput("value-iter-discards", () => discs ?? 2, v => { discs = v ?? discs; draw(); }, false);
 
 setupNumberInput("value-canvas-x", () => resolutionX ?? 0, v => { 
 
