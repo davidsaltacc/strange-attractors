@@ -45,7 +45,8 @@ fn random_from_vec4u(seed: vec4u) -> f32 { return float_construct_from_u32(hash_
 // -----------
 
 
-// https://piellardj.github.io/strange-attractors-webgl/
+// https://piellardj.github.io/strange-attractors-webgl/ 
+// implement others from here? 
 
 fn clifford(v: vec2f, a: f32, b: f32, c: f32, d: f32) -> vec2f {
     return vec2f(
