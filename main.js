@@ -139,10 +139,17 @@ function setupNumberInput(id, getter, _setter, withSlider = true, defaultMin = -
 }
 
 const canvas = q("#canvas");
+const colorPreviewCanvas = q("#color-preview");
 const context = canvas.getContext("webgpu");
+const colorPreviewContext = colorPreviewCanvas.getContext("webgpu");
 const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
 
 context.configure({
+    device,
+    format: presentationFormat
+});
+
+colorPreviewContext.configure({
     device,
     format: presentationFormat
 });
@@ -162,6 +169,15 @@ let d = -1;
 let panX = 0;
 let panY = 0;
 let zoom = 0.33;
+
+let gradientColorsUsed = 3;
+let gradientColors = [ 
+    0., 0., 0.0, 1.,
+    0.4, 0.4, 0.8, 1.,
+    1., 1., 1., 1.
+];
+let gradientPositions = [ 0, 0.15, 0.9 ];
+let gradientBiases = [ 0.4, 0.25 ];
 
 let canDraw = false;
 
@@ -278,7 +294,12 @@ const particleUniformBuffer = device.createBuffer({
 });
 
 const colorizationUniformBuffer = device.createBuffer({
-    size: 16,
+    size: 208,
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+});
+
+const colorPreviewUniformBuffer = device.createBuffer({
+    size: 208,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
 });
 
@@ -298,27 +319,55 @@ const particleUniformsViews = {
     pan: new Float32Array(particleUniformsValues, 40, 2)
 };
 
-const colorizationUniformsValues = new ArrayBuffer(16);
+const colorizationUniformsValues = new ArrayBuffer(208);
 const colorizationUniformsViews = {
     size: new Uint32Array(colorizationUniformsValues, 0, 2),
-    particleIntensity: new Float32Array(colorizationUniformsValues, 8, 1)
+    colorsUsed: new Uint32Array(colorizationUniformsValues, 8, 1),
+    particleIntensity: new Float32Array(colorizationUniformsValues, 12, 1),
+    gradientColors: new Float32Array(colorizationUniformsValues, 16, 32),
+    gradientPositions: new Float32Array(colorizationUniformsValues, 144, 8),
+    gradientBiases: new Float32Array(colorizationUniformsValues, 176, 8)
+};
+
+const colorPreviewUniformsValues = new ArrayBuffer(208);
+const colorPreviewUniformsViews = {
+    colorsUsed: new Uint32Array(colorPreviewUniformsValues, 0, 1),
+    gradientColors: new Float32Array(colorPreviewUniformsValues, 16, 32),
+    gradientPositions: new Float32Array(colorPreviewUniformsValues, 144, 8),
+    gradientBiases: new Float32Array(colorPreviewUniformsValues, 176, 8)
 };
 
 // --- modules --- 
 
-const particleModule = device.createShaderModule({
-    label: "particle attractor module",
-    code: await (
-        await fetch("particles.wgsl")
-    ).text()
-});
+async function createShaderModule(label, filename) {
 
-const colorizationModule = device.createShaderModule({
-    label: "colorization module",
-    code: await (
-        await fetch("colorization.wgsl")
-    ).text()
-});
+    async function constructCode(filename) {
+
+        const code = await (
+            await fetch(filename)
+        ).text();
+        let newCode = code;
+
+        for (const line of code.split("\n")) {
+            if (line.startsWith("//#include ")) {
+                newCode = newCode.replace(line, await constructCode(line.split("//#include ")[1]));
+            }
+        }
+
+        return newCode;
+
+    }
+
+    return device.createShaderModule({
+        label,
+        code: await constructCode(filename)
+    });
+
+}
+
+const particleModule = await createShaderModule("particle attractor module", "shaders/core/particles.wgsl");
+const colorizationModule = await createShaderModule("colorization module", "shaders/core/colorization.wgsl");
+const colorPreviewModule = await createShaderModule("color preview module", "shaders/core/color_preview.wgsl");
 
 // --- pipelines ---
 
@@ -341,6 +390,23 @@ const colorizationPipeline = device.createRenderPipeline({
     },
     fragment: {
         module: colorizationModule,
+        targets: [{ 
+            format: presentationFormat 
+        }]
+    }
+});
+
+const colorPreviewPipeline = device.createRenderPipeline({
+    label: "color preview pipeline",
+    layout: "auto",
+    primitive: { 
+        topology: "triangle-strip"
+    },
+    vertex: {
+        module: colorPreviewModule
+    },
+    fragment: {
+        module: colorPreviewModule,
         targets: [{ 
             format: presentationFormat 
         }]
@@ -385,6 +451,18 @@ function createBindGroups() {
     });
 
 }
+
+
+const colorPreviewBindGroup = device.createBindGroup({
+    label: "color preview bind group",
+    layout: colorPreviewPipeline.getBindGroupLayout(0),
+    entries: [
+        { 
+            binding: 0, 
+            resource: colorPreviewUniformBuffer 
+        }
+    ]
+});
 
 createBindGroups();
 
@@ -446,6 +524,21 @@ function draw(clearParticles = true) {
     particleUniformsViews.d[0] = d;
 
     colorizationUniformsViews.particleIntensity[0] = particleIntensity;
+    
+    colorizationUniformsViews.colorsUsed[0] = gradientColorsUsed;
+
+    for (let c = 0; c < gradientColorsUsed; c++) {
+
+        colorizationUniformsViews.gradientColors[4 * c] = gradientColors[4 * c];
+        colorizationUniformsViews.gradientColors[4 * c + 1] = gradientColors[4 * c + 1];
+        colorizationUniformsViews.gradientColors[4 * c + 2] = gradientColors[4 * c + 2];
+        colorizationUniformsViews.gradientColors[4 * c + 3] = gradientColors[4 * c + 3];
+
+        colorizationUniformsViews.gradientPositions[c] = gradientPositions[c];
+
+        colorizationUniformsViews.gradientBiases[c] = gradientBiases[c];
+        
+    }
 
     device.queue.writeBuffer(particleUniformBuffer, 0, particleUniformsValues);
     device.queue.writeBuffer(colorizationUniformBuffer, 0, colorizationUniformsValues);
@@ -523,8 +616,57 @@ function draw(clearParticles = true) {
     }
 
     updatePerfText();
-    
+
+}
+
+function drawColorPreview() {
+
+    colorPreviewUniformsViews.colorsUsed[0] = gradientColorsUsed;
+
+    for (let c = 0; c < gradientColorsUsed; c++) {
+
+        colorPreviewUniformsViews.gradientColors[4 * c] = gradientColors[4 * c];
+        colorPreviewUniformsViews.gradientColors[4 * c + 1] = gradientColors[4 * c + 1];
+        colorPreviewUniformsViews.gradientColors[4 * c + 2] = gradientColors[4 * c + 2];
+        colorPreviewUniformsViews.gradientColors[4 * c + 3] = gradientColors[4 * c + 3];
+
+        colorPreviewUniformsViews.gradientPositions[c] = gradientPositions[c];
+
+        colorPreviewUniformsViews.gradientBiases[c] = gradientBiases[c];
+        
+    }
+
+    device.queue.writeBuffer(colorPreviewUniformBuffer, 0, colorPreviewUniformsValues);
+
+    const encoder = device.createCommandEncoder({ label: "color preview command encoder" });
+
+    const renderPass = encoder.beginRenderPass({
+        label: "color preview pass",
+        colorAttachments: [
+            {
+                view: colorPreviewContext.getCurrentTexture().createView(),
+                clearValue: [0, 0, 0, 0],
+                loadOp: "clear",
+                storeOp: "store"
+            }
+        ]
+    });
+
+    renderPass.setPipeline(colorPreviewPipeline);
+    renderPass.setBindGroup(0, colorPreviewBindGroup);
+    renderPass.draw(4);
+    renderPass.end();
+
+    device.queue.submit([ encoder.finish() ]);
+
+}
+
+colorPreviewCanvas.onresize = () => {
+    const rect = colorPreviewCanvas.getBoundingClientRect();
+    colorPreviewCanvas.width = Math.floor(rect.width);
+    colorPreviewCanvas.height = Math.floor(rect.height);
 }
 
 canDraw = true;
 draw();
+drawColorPreview();

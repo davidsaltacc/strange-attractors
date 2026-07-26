@@ -5,7 +5,7 @@ a small project to render strange attractors on the gpu using webgpu with high p
 # todo list
 
 - configurable particle splat size?
-- custom colors (customizable gradient colormap, and different coloring options besides linear/exp)
+- on the color gradient editor, an exponential view mode (because otherwise often all is mostly squashed to the left)
 - more attractors besides de jong
 - button to reset the camera view
 - make all the number inputs aligned to the right instead of all being centered and wonky
