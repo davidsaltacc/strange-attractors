@@ -4,7 +4,6 @@ a small project to render strange attractors on the gpu using webgpu with high p
 
 # todo list
 
-- !!!! the integer over/underflow/??? issue still hasn't been fixed, the pixels at the very right of the render (just outside) appear on the leftmost column instead
 - configurable particle splat size?
 - custom colors (customizable gradient colormap, and different coloring options besides linear/exp)
 - more attractors besides de jong

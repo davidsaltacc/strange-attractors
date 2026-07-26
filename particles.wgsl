@@ -115,7 +115,7 @@ fn computeParticles(
             var x2 = round(((pos.x - uniforms.pan.x) + 1. / uniforms.zoom) * uniforms.zoom / 2. * f32(dimX) * mX + oX);
             var y2 = round(((-pos.y + uniforms.pan.y) + 1. / uniforms.zoom) * uniforms.zoom / 2. * f32(dimY) * mY + oY);
 
-            if (x2 >= 0. && x2 <= f32(dimX) && y2 >= 0. && y2 <= f32(dimY)) {
+            if (x2 >= 0. && x2 < f32(dimX) && y2 >= 0. && y2 < f32(dimY)) {
                 atomicAdd(&finalBuffer[u32(y2) * dimX + u32(x2)], 1u);
             }
         }
