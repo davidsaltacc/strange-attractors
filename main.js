@@ -300,6 +300,56 @@ function setupColorPicker(id, getter, setter) {
 
 }
 
+function setupGradientStopEdits() {
+
+    const stopEditsContainer = q("#gradient-stop-edits-container");
+
+    stopEditsContainer.innerHTML = "";
+
+    for (let i = 0; i < gradientColorsUsed; i++) {
+
+        const colorStop = q("#gradient-stop-edits-templates .gradient-stop-color-edit").cloneNode(true);
+        const positionInput = cq(colorStop, ".gradient-stop-edit-position");
+        const colorButton = cq(colorStop, ".gradient-stop-edit-color");
+
+        positionInput.value = (gradientPositions[i] * 100);
+        colorButton.style.backgroundColor = rgbf2hex(gradientColors[4 * i], gradientColors[4 * i + 1], gradientColors[4 * i + 2]);
+
+        positionInput.oninput = () => {
+            const parsed = parseFloat(positionInput.value);
+            if (Number.isFinite(parsed)) {
+                gradientPositions[i] = Math.min(Math.max(parsed / 100, 0), 1);
+                drawColorPreview();
+                draw();
+            }
+        };
+
+        stopEditsContainer.appendChild(colorStop);
+
+        if (i != gradientColorsUsed - 1) {
+
+            const biasStop = q("#gradient-stop-edits-templates .gradient-stop-bias-edit").cloneNode(true);
+            const biasInput = cq(biasStop, ".gradient-stop-edit-bias");
+
+            biasInput.value = gradientBiases[i];
+
+            biasInput.oninput = () => {
+                const parsed = parseFloat(biasInput.value);
+                if (Number.isFinite(parsed)) {
+                    gradientBiases[i] = Math.min(Math.max(parsed, 0), 1);
+                    drawColorPreview();
+                    draw();
+                }
+            };
+
+            stopEditsContainer.appendChild(biasStop);
+
+        }
+
+    }
+
+}
+
 const canvas = q("#canvas");
 const colorPreviewCanvas = q("#color-preview");
 const context = canvas.getContext("webgpu");
@@ -342,6 +392,8 @@ let gradientPositions = [ 0, 0.15, 0.9 ];
 let gradientBiases = [ 0.4, 0.25 ];
 
 let canDraw = false;
+
+setupGradientStopEdits();
 
 setupNumberInput("value-a", () => a ?? 0, v => { a = v ?? a; draw(); });
 setupNumberInput("value-b", () => b ?? 0, v => { b = v ?? b; draw(); });

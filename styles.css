@@ -144,6 +144,7 @@ input[type=range]::-webkit-slider-thumb, input[type=range]::-moz-range-thumb {
 .color-picker {
     display: flex;
     flex-direction: row;
+    align-items: stretch;
 }
 
 .color-picker-s-v {
@@ -198,4 +199,41 @@ input[type=range]::-webkit-slider-thumb, input[type=range]::-moz-range-thumb {
 .color-picker-hex-input {
     margin: 20px !important;
     font-family: monospace;
+}
+
+.colors-seperator {
+    width: 2px;
+    background-color: #808080;
+    margin: 20px 40px 20px 40px;
+}
+
+#gradient-stop-edits-container {
+    display: flex;
+    flex-direction: column;
+    margin: 20px;
+}
+
+.gradient-stop-edit {
+    border-left: 2px solid #808080;
+    height: 40px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 20px;
+    margin-bottom: 5px;
+}
+
+.gradient-stop-edit-color {
+    width: 50px;
+    height: 30px;
+    border: 1px solid #808080;
+    margin-right: 20px;
+}
+
+.gradient-stop-bias-label {
+    margin-right: 10px;
+}
+
+.hidden {
+    display: none;
 }
