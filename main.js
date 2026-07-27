@@ -356,7 +356,7 @@ function setupGradientStopEdits() {
 
         const ondown = evt => {
             if (evt.button == 0) {
-                if (evt.target == colorButton) {
+                if (evt.target == colorButton && colorButton.style.border.indexOf("4px") < 0) {
                     colorButton.style.border = "4px solid #000000";
                     colorButton.style.outline = "4px solid #ffffff";
                     setupColorPicker("gradient-color-picker", () => [ gradientColors[4 * i], gradientColors[4 * i + 1], gradientColors[4 * i + 2] ], newCol => {
@@ -368,11 +368,11 @@ function setupGradientStopEdits() {
                         draw();
                     });
                 } else if (!q("#gradient-color-picker").contains(evt.target)) {
-                    colorButton.style.border = "";
-                    colorButton.style.outline = "";
-                    if (evt.target.className.indexOf("gradient-stop-edit-color") < 0) {
+                    if (evt.target.className.indexOf("gradient-stop-edit-color") < 0 || (evt.target == colorButton && colorButton.style.border.indexOf("4px") >= 0)) {
                         disableColorPicker("gradient-color-picker");
                     }
+                    colorButton.style.border = "";
+                    colorButton.style.outline = "";
                 }
             }
         };
