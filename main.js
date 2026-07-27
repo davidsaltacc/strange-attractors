@@ -1,5 +1,7 @@
 const q = s => document.querySelector(s);
 const qa = s => document.querySelectorAll(s);
+const cq = (c, s) => c.querySelector(s);
+const cqa = (c, s) => c.querySelectorAll(s);
 
 const adapter = await navigator.gpu?.requestAdapter();
 const device = await adapter?.requestDevice({
@@ -138,6 +140,166 @@ function setupNumberInput(id, getter, _setter, withSlider = true, defaultMin = -
 
 }
 
+function rgbf2hsv(r, g, b) { // https://stackoverflow.com/a/54070620
+    let v = Math.max(r, g, b);
+    let c = v - Math.min(r, g, b);
+    let h = c && ((v == r) ? (g - b) / c : ((v == g) ? 2 + (b - r) / c : 4 + (r - g) / c)); 
+    return [ 60 * (h < 0 ? h + 6 : h), v && c / v, v ];
+}
+
+function hsv2rgbf(h, s, v) // https://stackoverflow.com/a/54024653
+{                              
+    let f = (n, k = (n + h / 60) % 6) => v - v * s * Math.max(Math.min(k, 4 - k, 1), 0);     
+    return [ f(5), f(3), f(1) ];
+}
+
+function rgbf2hex(r, g, b) {
+    return "#" + 
+        Math.floor(r * 255).toString(16).padStart(2, "0") + 
+        Math.floor(g * 255).toString(16).padStart(2, "0") + 
+        Math.floor(b * 255).toString(16).padStart(2, "0");
+}
+
+function hex2rgbf(hex) {
+    if (hex.startsWith("#")) {
+        hex = hex.substring(1);
+    }
+    const s = hex.length == 3;
+    return [
+        parseInt(hex[0] + (s ? hex[0] : hex[1]), 16) / 255,
+        parseInt((s ? hex[1] : hex[2]) + (s ? hex[1] : hex[3]), 16) / 255,
+        parseInt((s ? hex[2] : hex[4]) + (s ? hex[2] : hex[5]), 16) / 255
+    ];
+}
+
+function setupColorPicker(id, getter, setter) {
+        
+    const element = q("#" + id);
+    const colorPreview = cq(element, ".color-picker-preview");
+    const hue = cq(element, ".color-picker-h");
+    const hueCursor = cq(element, ".color-picker-h-cursor");
+    const colorHexInput = cq(element, ".color-picker-hex-input");
+    const sv = cq(element, ".color-picker-s-v");
+    const svCursor = cq(element, ".color-picker-s-v-cursor");
+
+    let preservedHue = 0;
+    let lastS = 1;
+
+    function resetToColor(colorF, skipHexInput) {
+
+        let colorHex = rgbf2hex(...colorF);
+        let colorHsv = rgbf2hsv(...colorF);
+
+        if (colorHsv[1] == 0 || lastS == 0) {
+            colorHsv[0] = preservedHue;
+            colorF = hsv2rgbf(...colorHsv);
+            colorHex = rgbf2hex(...colorF);
+        }
+        if (colorHsv[1] != 0) {
+            preservedHue = colorHsv[0];
+        }
+        if (lastS == 0) {
+            setter(colorF);
+        }
+        lastS = colorHsv[1];
+    
+        const hueRgb = hsv2rgbf(colorHsv[0], 1, 1);
+        const hueHex = rgbf2hex(...hueRgb);
+    
+        colorPreview.style.backgroundColor = colorHex;
+
+        if (!skipHexInput) {
+            colorHexInput.value = colorHex.toLowerCase();
+        }
+    
+        hueCursor.style.backgroundColor = hueHex;
+        hueCursor.style.left = -6 + colorHsv[0] / 360 * 200 + "px";
+    
+        sv.style.background = "linear-gradient(transparent 0%, #000000 100%), linear-gradient(to left, transparent 0%, #ffffff 100%), " + hueHex;
+    
+        svCursor.style.backgroundColor = colorHex;
+        svCursor.style.left = -10 + colorHsv[1] * 200 + "px";
+        svCursor.style.top = -10 + (1 - colorHsv[2]) * 200 + "px";
+
+    }
+
+    const defaultColorFloat = getter();
+
+    resetToColor(defaultColorFloat);
+
+    colorHexInput.oninput = () => resetToColor(hex2rgbf(colorHexInput.value), true);
+
+    function updateHue(newHue) {
+
+        const currentColor = getter();
+        const currentColorHsv = rgbf2hsv(...currentColor);
+
+        newHue = Math.min(Math.max(newHue, 0), 0.9999); // 0.9999 so it doesn't loop back around, which is unsatisfying
+        newHue = Math.floor(newHue * 360);
+
+        preservedHue = newHue;
+
+        const newColor = hsv2rgbf(newHue, currentColorHsv[1], currentColorHsv[2]);
+        
+        setter(newColor);
+        resetToColor(newColor);
+        
+    }
+
+    function updateSv(newS, newV) {
+
+        const currentColor = getter();
+        const currentColorHsv = rgbf2hsv(...currentColor);
+
+        newS = Math.min(Math.max(newS, 0), 1);
+        newV = 1 - Math.min(Math.max(newV, 0), 1);
+
+        const newColor = hsv2rgbf(currentColorHsv[0], newS, newV);
+        
+        setter(newColor);
+        resetToColor(newColor);
+
+    }
+
+    let hueClicked = false;
+    let svClicked = false;
+    
+    hue.onmousedown = evt => {
+        if (evt.button == 0) {
+            hueClicked = true;
+            const rect = hue.getBoundingClientRect();
+            updateHue((evt.clientX - rect.x) / 200);
+        }
+    };
+    
+    sv.onmousedown = evt => {
+        if (evt.button == 0) {
+            svClicked = true;
+            const rect = sv.getBoundingClientRect();
+            updateSv((evt.clientX - rect.x) / 200, (evt.clientY - rect.y) / 200);
+        }
+    };
+
+    document.addEventListener("mouseup", evt => {
+        if (evt.button == 0) {
+            hueClicked = false;
+            svClicked = false;
+        }
+    });
+
+    document.addEventListener("mousemove", evt => {
+        if (hueClicked) {
+            const rect = hue.getBoundingClientRect();
+            updateHue((evt.clientX - rect.x) / 200);
+        }
+        if (svClicked) {
+            const rect = sv.getBoundingClientRect();
+            updateSv((evt.clientX - rect.x) / 200, (evt.clientY - rect.y) / 200);
+        }
+    });
+
+}
+
 const canvas = q("#canvas");
 const colorPreviewCanvas = q("#color-preview");
 const context = canvas.getContext("webgpu");
@@ -217,6 +379,9 @@ setupNumberInput("value-canvas-y", () => resolutionY ?? 0, v => {
     
 }, false);
 
+let someColorWhatever = [ 0.4, 0.6, 0.9 ];
+setupColorPicker("gradient-color-picker", () => someColorWhatever, v => { someColorWhatever = v; });
+
 canvas.width = resolutionX;
 canvas.height = resolutionY;
 
@@ -271,7 +436,7 @@ function mouseMove(evt) {
 
 canvas.onwheel = onZoom;
 canvas.onmousedown = mouseDown;
-document.onmouseup = mouseUp;
+document.addEventListener("mouseup", mouseUp);
 canvas.onmousemove = mouseMove;
 canvas.oncontextmenu = evt => evt.preventDefault();
 
