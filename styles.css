@@ -141,6 +141,12 @@ input[type=range]::-webkit-slider-thumb, input[type=range]::-moz-range-thumb {
     border: 1px solid #808080;
 }
 
+.gradient-color-picker-container {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+}
+
 .color-picker {
     display: flex;
     flex-direction: row;
@@ -156,7 +162,6 @@ input[type=range]::-webkit-slider-thumb, input[type=range]::-moz-range-thumb {
 }
 
 .color-picker-s-v-cursor {
-    background-color: #00ff55;
     width: 16px;
     height: 16px;
     border: 2px solid #ffffff;

@@ -172,9 +172,15 @@ function hex2rgbf(hex) {
     ];
 }
 
+let colorPickerMouseUpEvt = null;
+let colorPickerMouseMoveEvt = null;
+
 function setupColorPicker(id, getter, setter) {
         
     const element = q("#" + id);
+
+    element.style.display = ""; 
+
     const colorPreview = cq(element, ".color-picker-preview");
     const hue = cq(element, ".color-picker-h");
     const hueCursor = cq(element, ".color-picker-h-cursor");
@@ -280,14 +286,22 @@ function setupColorPicker(id, getter, setter) {
         }
     };
 
-    document.addEventListener("mouseup", evt => {
+    if (colorPickerMouseUpEvt) {
+        document.removeEventListener("mouseup", colorPickerMouseUpEvt);
+    }
+
+    if (colorPickerMouseMoveEvt) {
+        document.removeEventListener("mousemove", colorPickerMouseMoveEvt);
+    }
+
+    colorPickerMouseUpEvt = evt => {
         if (evt.button == 0) {
             hueClicked = false;
             svClicked = false;
         }
-    });
+    }
 
-    document.addEventListener("mousemove", evt => {
+    colorPickerMouseMoveEvt = evt => {
         if (hueClicked) {
             const rect = hue.getBoundingClientRect();
             updateHue((evt.clientX - rect.x) / 200);
@@ -296,11 +310,27 @@ function setupColorPicker(id, getter, setter) {
             const rect = sv.getBoundingClientRect();
             updateSv((evt.clientX - rect.x) / 200, (evt.clientY - rect.y) / 200);
         }
-    });
+    }
+
+    document.addEventListener("mouseup", colorPickerMouseUpEvt);
+    document.addEventListener("mousemove", colorPickerMouseMoveEvt);
 
 }
 
+function disableColorPicker(id) {
+        
+    const element = q("#" + id);
+    element.style.display = "none"; 
+
+}
+
+let gradientStopMouseDownListeners = [];
+
 function setupGradientStopEdits() {
+
+    for (const listener of gradientStopMouseDownListeners) {
+        document.removeEventListener("mousedown", listener);
+    }
 
     const stopEditsContainer = q("#gradient-stop-edits-container");
 
@@ -323,6 +353,32 @@ function setupGradientStopEdits() {
                 draw();
             }
         };
+
+        const ondown = evt => {
+            if (evt.button == 0) {
+                if (evt.target == colorButton) {
+                    colorButton.style.border = "4px solid #000000";
+                    colorButton.style.outline = "4px solid #ffffff";
+                    setupColorPicker("gradient-color-picker", () => [ gradientColors[4 * i], gradientColors[4 * i + 1], gradientColors[4 * i + 2] ], newCol => {
+                        gradientColors[4 * i] = newCol[0];
+                        gradientColors[4 * i + 1] = newCol[1];
+                        gradientColors[4 * i + 2] = newCol[2];
+                        colorButton.style.backgroundColor = rgbf2hex(gradientColors[4 * i], gradientColors[4 * i + 1], gradientColors[4 * i + 2]);
+                        drawColorPreview();
+                        draw();
+                    });
+                } else if (!q("#gradient-color-picker").contains(evt.target)) {
+                    colorButton.style.border = "";
+                    colorButton.style.outline = "";
+                    if (evt.target.className.indexOf("gradient-stop-edit-color") < 0) {
+                        disableColorPicker("gradient-color-picker");
+                    }
+                }
+            }
+        };
+
+        gradientStopMouseDownListeners.push(ondown);
+        document.addEventListener("mousedown", ondown);
 
         stopEditsContainer.appendChild(colorStop);
 
@@ -431,8 +487,7 @@ setupNumberInput("value-canvas-y", () => resolutionY ?? 0, v => {
     
 }, false);
 
-let someColorWhatever = [ 0.4, 0.6, 0.9 ];
-setupColorPicker("gradient-color-picker", () => someColorWhatever, v => { someColorWhatever = v; });
+disableColorPicker("gradient-color-picker");
 
 canvas.width = resolutionX;
 canvas.height = resolutionY;
