@@ -46,7 +46,7 @@ fn colormap_gradient8(x: f32, used: u32, colors: array<vec4f, 8>, positions: arr
 
     if (bias < 0.5) { // TODO this is to be tweaked with once we have a proper ui to configure the gradient
         x2 = 1. - pow(1. - x2, pow(2., 4. * pow((1. - bias) * 2. - 1., 2.)));
-    } else if (bias < 0.5) {
+    } else if (bias > 0.5) {
         x2 = pow(x2, pow(2., 4. * pow((1. - bias) * 2. - 1., 2.)));
     }
 
