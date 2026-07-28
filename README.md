@@ -13,4 +13,3 @@ a small project to render strange attractors on the gpu using webgpu with high p
 - a way to downscale the preview, like i want to see what i am exporting but not have it all over my screen
 - proper export section (rendering in multiple steps, storage buffer remains filled, just do multiple compute passes instead of 1 big one to not fry the gpu)
 - make the ui look a bit nicer, it just feels a bit unpolished
-- fix panning at non-square aspect ratios (and then implement the same fix for chromablossom)

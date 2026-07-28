@@ -675,8 +675,9 @@ var mouseRightClicked = false;
 
 function updateMouseCoords(evt) {
     const rect = evt.target.getBoundingClientRect();
-    mouseX = (2 * (evt.clientX - rect.left) - canvas.clientWidth) / canvas.clientWidth;
-    mouseY = -(2 * (evt.clientY - rect.top) - canvas.clientHeight) / canvas.clientHeight;
+    const ratio = canvas.clientWidth / canvas.clientHeight;
+    mouseX = (2 * (evt.clientX - rect.left) - canvas.clientWidth) / canvas.clientWidth * (ratio > 1 ? ratio : 1);
+    mouseY = -(2 * (evt.clientY - rect.top) - canvas.clientHeight) / canvas.clientHeight / (ratio < 1 ? ratio : 1);
     mouseX = mouseX / zoom + panX;
     mouseY = mouseY / zoom + panY;
 }
