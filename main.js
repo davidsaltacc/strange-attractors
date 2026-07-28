@@ -27,6 +27,13 @@ function reshapeDispatches(n) {
     return [ x, y, z ];
 }
 
+window.resetCamera = () => {
+    panX = 0;
+    panY = 0;
+    zoom = 0.33;
+    draw();
+};
+
 window.saveDraft = () => {
     draw();
     var data = canvas.toDataURL("image/png");
@@ -41,10 +48,12 @@ window.toggleCanvas = () => {
     if (canvas.style.display !== "none") {
         canvas.style.display = "none";
         q("#savePreviewButton").style.display = "none";
+        q("#resetCameraButton").style.display = "none";
         q("#hideCanvasButton").innerHTML = "Show canvas";
     } else {
         canvas.style.display = "";
         q("#savePreviewButton").style.display = "";
+        q("#resetCameraButton").style.display = "";
         q("#hideCanvasButton").innerHTML = "Hide canvas";
     }
 };
