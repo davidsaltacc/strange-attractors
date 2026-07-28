@@ -330,7 +330,7 @@ let gradientStopMouseDownListeners = [];
 let gradientStopMouseMoveListeners = [];
 let gradientStopMouseUpListeners = [];
 
-function setupGradientStopEdits() {
+function setupGradientStopEdits(forceSelected = null) {
 
     for (const listener of gradientStopMouseDownListeners) {
         document.removeEventListener("mousedown", listener);
@@ -347,6 +347,61 @@ function setupGradientStopEdits() {
     const stopEditsContainer = q("#gradient-stop-edits-container");
     const inGradientStops = q("#gradient-preview-color-stops");
     const previewCanvas = q("#color-preview");
+
+    previewCanvas.onclick = evt => {
+        if (gradientColorsUsed >= 8) {
+            return;
+        }
+
+        const rect = previewCanvas.getBoundingClientRect();
+        const pos = Math.min(Math.max((evt.clientX - rect.x) / rect.width, 0), 1);
+
+        let i = 0;
+        for (const gPos of gradientPositions) {
+            if (pos < gPos) {
+                break;
+            }
+            i++;
+        }
+        
+        gradientColorsUsed += 1;
+        if (i == 0) {
+            gradientColors.splice(
+                4 * i, 
+                0, 
+                gradientColors[4 * i],
+                gradientColors[4 * i + 1],
+                gradientColors[4 * i + 2],
+                1
+            );
+        } else if (i == gradientColorsUsed - 1) {
+            gradientColors.splice(
+                4 * i, 
+                0, 
+                gradientColors[4 * (i - 1)],
+                gradientColors[4 * (i - 1) + 1],
+                gradientColors[4 * (i - 1) + 2],
+                1
+            );
+        } else {
+            const p2 = (pos - gradientPositions[i - 1]) / (gradientPositions[i] - gradientPositions[i - 1]);
+            gradientColors.splice(
+                4 * i, 
+                0, 
+                (1 - p2) * gradientColors[4 * (i - 1)] + p2 * gradientColors[4 * i],
+                (1 - p2) * gradientColors[4 * (i - 1) + 1] + p2 * gradientColors[4 * i + 1],
+                (1 - p2) * gradientColors[4 * (i - 1) + 2] + p2 * gradientColors[4 * i + 2],
+                1
+            );
+        }
+        gradientPositions.splice(i, 0, pos);
+        gradientBiases.splice(i, 0, 0.5);
+
+        setupGradientStopEdits(i);
+        drawColorPreview();
+        draw();
+
+    };
 
     stopEditsContainer.innerHTML = "";
     inGradientStops.innerHTML = "";
@@ -423,6 +478,10 @@ function setupGradientStopEdits() {
 
             }
         };
+
+        if (forceSelected == i) {
+            ondown({ button: 0, target: colorButton });
+        }
 
         const onmove = evt => {
             if (gradientStopClicked) {
