@@ -256,9 +256,14 @@
             </table>
         </div>
         <h2>Coloring</h2>
-        <p>In this section, you can configure the whole color gradient applied to the render.</p>
-        <div>
+        <p>In this section, you can configure the whole color gradient applied to the render. Please try keeping the gradient color stops in order, as changing the order may end in unexpected results.</p>
+        <div class="gradient-preview-container">
             <canvas id="color-preview"></canvas>
+            <div id="gradient-preview-stop-templates" class="hidden">
+                <div class="gradient-preview-color-stop"></div>
+                <div class="gradient-preview-bias-stop"></div>
+            </div>
+            <div class="gradient-preview-color-stops" id="gradient-preview-color-stops"></div>
         </div>
         <div class="gradient-color-picker-container">
             <div class="hidden" id="gradient-stop-edits-templates">

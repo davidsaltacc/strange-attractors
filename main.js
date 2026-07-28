@@ -325,6 +325,8 @@ function disableColorPicker(id) {
 }
 
 let gradientStopMouseDownListeners = [];
+let gradientStopMouseMoveListeners = [];
+let gradientStopMouseUpListeners = [];
 
 function setupGradientStopEdits() {
 
@@ -332,9 +334,22 @@ function setupGradientStopEdits() {
         document.removeEventListener("mousedown", listener);
     }
 
+    for (const listener of gradientStopMouseMoveListeners) {
+        document.removeEventListener("mousemove", listener);
+    }
+
+    for (const listener of gradientStopMouseUpListeners) {
+        document.removeEventListener("mouseup", listener);
+    }
+
     const stopEditsContainer = q("#gradient-stop-edits-container");
+    const inGradientStops = q("#gradient-preview-color-stops");
+    const previewCanvas = q("#color-preview");
 
     stopEditsContainer.innerHTML = "";
+    inGradientStops.innerHTML = "";
+
+    let allBiasStops = [];
 
     for (let i = 0; i < gradientColorsUsed; i++) {
 
@@ -342,20 +357,30 @@ function setupGradientStopEdits() {
         const positionInput = cq(colorStop, ".gradient-stop-edit-position");
         const colorButton = cq(colorStop, ".gradient-stop-edit-color");
 
+        const inGradientStop = q("#gradient-preview-stop-templates .gradient-preview-color-stop").cloneNode(true);
+        const inGradientBiasStop = q("#gradient-preview-stop-templates .gradient-preview-bias-stop").cloneNode(true);
+
         positionInput.value = (gradientPositions[i] * 100);
         colorButton.style.backgroundColor = rgbf2hex(gradientColors[4 * i], gradientColors[4 * i + 1], gradientColors[4 * i + 2]);
+
+        inGradientStop.style.backgroundColor = colorButton.style.backgroundColor;
+        inGradientStop.style.left = "calc(-8px + " + gradientPositions[i] * 100 + "%)";
 
         positionInput.oninput = () => {
             const parsed = parseFloat(positionInput.value);
             if (Number.isFinite(parsed)) {
                 gradientPositions[i] = Math.min(Math.max(parsed / 100, 0), 1);
+                inGradientStop.style.left = "calc(-8px + " + gradientPositions[i] * 100 + "%)";
                 drawColorPreview();
                 draw();
             }
         };
 
+        let gradientStopClicked = false;
+
         const ondown = evt => {
             if (evt.button == 0) {
+
                 if (evt.target == colorButton && colorButton.style.border.indexOf("4px") < 0) {
                     colorButton.style.border = "4px solid #000000";
                     colorButton.style.outline = "4px solid #ffffff";
@@ -364,28 +389,69 @@ function setupGradientStopEdits() {
                         gradientColors[4 * i + 1] = newCol[1];
                         gradientColors[4 * i + 2] = newCol[2];
                         colorButton.style.backgroundColor = rgbf2hex(gradientColors[4 * i], gradientColors[4 * i + 1], gradientColors[4 * i + 2]);
+                        inGradientStop.style.backgroundColor = colorButton.style.backgroundColor;
                         drawColorPreview();
                         draw();
                     });
-                } else if (!q("#gradient-color-picker").contains(evt.target)) {
-                    if (evt.target.className.indexOf("gradient-stop-edit-color") < 0 || (evt.target == colorButton && colorButton.style.border.indexOf("4px") >= 0)) {
+                } else if (!q("#gradient-color-picker").contains(evt.target) && !inGradientStop.contains(evt.target)) {
+                    if ((evt.target.className.indexOf("gradient-stop-edit-color") < 0 && evt.target.className.indexOf("gradient-preview-color-stop") < 0) || (evt.target == colorButton && colorButton.style.border.indexOf("4px") >= 0)) {
                         disableColorPicker("gradient-color-picker");
                     }
                     colorButton.style.border = "";
                     colorButton.style.outline = "";
                 }
+
+                if (evt.target == inGradientStop) {
+                    gradientStopClicked = true;
+                    ondown({ button: 0, target: colorButton });
+                }
+
+            }
+        };
+
+        const onmove = evt => {
+            if (gradientStopClicked) {
+                const rect = previewCanvas.getBoundingClientRect();
+                const newPos = Math.min(Math.max((evt.clientX - rect.x) / rect.width, 0), 1);
+                gradientPositions[i] = newPos;
+                inGradientStop.style.left = "calc(-8px + " + gradientPositions[i] * 100 + "%)";
+                positionInput.value = (gradientPositions[i] * 100).toFixed(2);
+                if (i != gradientColorsUsed - 1) {
+                    inGradientBiasStop.style.left = "calc(-8px + " + gradientPositions[i] * 100 + "% + " + ((gradientPositions[i + 1] * 100 - gradientPositions[i] * 100) * gradientBiases[i]) + "%)";
+                }
+                if (allBiasStops[i - 1]) {
+                    allBiasStops[i - 1].style.left = "calc(-8px + " + gradientPositions[i - 1] * 100 + "% + " + ((gradientPositions[i] * 100 - gradientPositions[i - 1] * 100) * gradientBiases[i - 1]) + "%)";
+                }
+                drawColorPreview();
+                draw();
+            }
+        };
+
+        const onup = evt => {
+            if (evt.button == 0) {
+                gradientStopClicked = false;
             }
         };
 
         gradientStopMouseDownListeners.push(ondown);
         document.addEventListener("mousedown", ondown);
 
+        gradientStopMouseMoveListeners.push(onmove);
+        document.addEventListener("mousemove", onmove);
+
+        gradientStopMouseUpListeners.push(onup);
+        document.addEventListener("mouseup", onup);
+
         stopEditsContainer.appendChild(colorStop);
+
+        inGradientStops.appendChild(inGradientStop);
 
         if (i != gradientColorsUsed - 1) {
 
             const biasStop = q("#gradient-stop-edits-templates .gradient-stop-bias-edit").cloneNode(true);
             const biasInput = cq(biasStop, ".gradient-stop-edit-bias");
+
+            inGradientBiasStop.style.left = "calc(-8px + " + gradientPositions[i] * 100 + "% + " + ((gradientPositions[i + 1] * 100 - gradientPositions[i] * 100) * gradientBiases[i]) + "%)";
 
             biasInput.value = gradientBiases[i];
 
@@ -393,12 +459,49 @@ function setupGradientStopEdits() {
                 const parsed = parseFloat(biasInput.value);
                 if (Number.isFinite(parsed)) {
                     gradientBiases[i] = Math.min(Math.max(parsed, 0), 1);
+                    inGradientBiasStop.style.left = "calc(-8px + " + gradientPositions[i] * 100 + "% + " + ((gradientPositions[i + 1] * 100 - gradientPositions[i] * 100) * gradientBiases[i]) + "%)";
                     drawColorPreview();
                     draw();
                 }
             };
 
+            let biasStopMouseDown = false;
+
+            inGradientBiasStop.onmousedown = evt => {
+                if (evt.button == 0) {
+                    biasStopMouseDown = true;
+                }
+            };
+
+            const onmove = evt => {
+                if (biasStopMouseDown) {
+                    const rect = previewCanvas.getBoundingClientRect();
+                    const posCanvas = Math.min(Math.max((evt.clientX - rect.x) / rect.width, 0), 1);
+                    const newBias = (posCanvas - gradientPositions[i]) / (gradientPositions[i + 1] - gradientPositions[i]);
+                    gradientBiases[i] = Math.min(Math.max(newBias, 0), 1);
+                    inGradientBiasStop.style.left = "calc(-8px + " + gradientPositions[i] * 100 + "% + " + ((gradientPositions[i + 1] * 100 - gradientPositions[i] * 100) * gradientBiases[i]) + "%)";
+                    biasInput.value = gradientBiases[i].toFixed(3);
+                    drawColorPreview();
+                    draw();
+                }
+            };
+
+            const onup = evt => {
+                if (evt.button == 0) {
+                    biasStopMouseDown = false;
+                }
+            };
+
+            gradientStopMouseMoveListeners.push(onmove);
+            document.addEventListener("mousemove", onmove);
+
+            gradientStopMouseUpListeners.push(onup);
+            document.addEventListener("mouseup", onup);
+
             stopEditsContainer.appendChild(biasStop);
+
+            inGradientStops.appendChild(inGradientBiasStop);
+            allBiasStops.push(inGradientBiasStop);
 
         }
 
@@ -441,7 +544,7 @@ let zoom = 0.33;
 let gradientColorsUsed = 3;
 let gradientColors = [ 
     0., 0., 0.0, 1.,
-    0.4, 0.4, 0.8, 1.,
+    0.5, 0.5, 0.8, 1.,
     1., 1., 1., 1.
 ];
 let gradientPositions = [ 0, 0.15, 0.9 ];
