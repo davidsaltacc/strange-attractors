@@ -324,6 +324,8 @@ function disableColorPicker(id) {
 
 }
 
+window.removeGradientStop = () => {};
+
 let gradientStopMouseDownListeners = [];
 let gradientStopMouseMoveListeners = [];
 let gradientStopMouseUpListeners = [];
@@ -393,6 +395,19 @@ function setupGradientStopEdits() {
                         drawColorPreview();
                         draw();
                     });
+                    window.removeGradientStop = () => {
+                        if (gradientColorsUsed <= 1) {
+                            return;
+                        }
+                        gradientColorsUsed -= 1;
+                        gradientColors.splice(4 * i, 4);
+                        gradientPositions.splice(i, 1);
+                        gradientBiases.splice(i, 1);
+                        disableColorPicker("gradient-color-picker");
+                        setupGradientStopEdits();
+                        drawColorPreview();
+                        draw();
+                    };
                 } else if (!q("#gradient-color-picker").contains(evt.target) && !inGradientStop.contains(evt.target)) {
                     if ((evt.target.className.indexOf("gradient-stop-edit-color") < 0 && evt.target.className.indexOf("gradient-preview-color-stop") < 0) || (evt.target == colorButton && colorButton.style.border.indexOf("4px") >= 0)) {
                         disableColorPicker("gradient-color-picker");

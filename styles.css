@@ -280,3 +280,14 @@ input[type=range]::-webkit-slider-thumb, input[type=range]::-moz-range-thumb {
 .hidden {
     display: none;
 }
+
+.color-picker-column-3 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.color-picker-column-3 button {
+    margin: 20px;
+    margin-left: 0;
+}
