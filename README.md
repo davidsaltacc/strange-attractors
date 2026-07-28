@@ -4,7 +4,6 @@ a small project to render strange attractors on the gpu using webgpu with high p
 
 # todo list
 
-- configurable particle splat size?
 - on the color gradient editor, an exponential view mode (because otherwise often all is mostly squashed to the left)
 - in the color editor, restrict dragging stops beyond the next/previous stop
 - in the color editor, clamp user inputted values to 0-1
