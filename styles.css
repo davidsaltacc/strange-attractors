@@ -294,3 +294,13 @@ input[type=range]::-webkit-slider-thumb, input[type=range]::-moz-range-thumb {
     margin: 20px;
     margin-left: 0;
 }
+
+.attractor-button {
+    padding: 8px;
+    margin-right: 10px;
+}
+
+.attractor-button.active {
+    padding-bottom: 5px;
+    border-bottom: 5px solid #707070;
+}

@@ -58,9 +58,13 @@ window.toggleCanvas = () => {
     }
 };
 
+let numberInputs = [];
+
 function setupNumberInput(id, getter, _setter, withSlider = true, defaultMin = -5, defaultMax = 5) {
 
     const input = q("#" + id + "-input");
+
+    numberInputs.push([ input, getter ]);
 
     const slider = withSlider ? q("#" + id + "-slider-input") : null;
 
@@ -105,6 +109,8 @@ function setupNumberInput(id, getter, _setter, withSlider = true, defaultMin = -
 
         const slider = q("#" + id + "-slider-input");
 
+        numberInputs.push([ slider, getter ]);
+
         sMin.value = slider.min = defaultMin;
         sMax.value = slider.max = defaultMax;
 
@@ -147,6 +153,12 @@ function setupNumberInput(id, getter, _setter, withSlider = true, defaultMin = -
 
     setter(getter());
 
+}
+
+function updateNumberInputs() {
+    for (const input of numberInputs) {
+        input[0].value = input[1]();
+    }
 }
 
 function rgbf2hsv(r, g, b) { // https://stackoverflow.com/a/54070620
@@ -592,6 +604,181 @@ function setupGradientStopEdits(forceSelected = null) {
 
 }
 
+const ATTRACTORS = {
+    "bedhead": {
+        name: "Bedhead",
+        description: "description, todo",
+        shader: "shaders/attractors/bedhead.wgsl",
+        paramCount: 2,
+        values: {
+            a: 2,
+            b: 3,
+            iters: 40,
+            discs: 20
+        }
+    },
+    "clifford": {
+        name: "Clifford",
+        description: "description, todo",
+        shader: "shaders/attractors/clifford.wgsl",
+        paramCount: 4,
+        values: {
+            a: 2,
+            b: 2,
+            c: 1,
+            d: -1
+        }
+    },
+    "de_jong": {
+        name: "De Jong",
+        description: "description, todo",
+        shader: "shaders/attractors/de_jong.wgsl",
+        paramCount: 4,
+        values: {
+            a: -2,
+            b: -2,
+            c: -1,
+            d: 2
+        }
+    },
+    "fractal_dream": {
+        name: "Fractal Dream",
+        description: "description, todo",
+        shader: "shaders/attractors/fractal_dream.wgsl",
+        paramCount: 4,
+        values: {
+            a: 2,
+            b: 2,
+            c: -1,
+            d: 1
+        }
+    },
+    "ikeda": {
+        name: "Ikeda",
+        description: "description, todo",
+        shader: "shaders/attractors/ikeda.wgsl",
+        paramCount: 4,
+        values: {
+            a: -0.6,
+            b: -0.95,
+            c: 1.2,
+            d: 7,
+            iters: 40,
+            discs: 20
+        }
+    },
+    "juan": {
+        name: "Juan",
+        description: "description, todo",
+        shader: "shaders/attractors/juan.wgsl",
+        paramCount: 4,
+        values: {
+            a: -0.76,
+            b: -0.66,
+            c: 1.81,
+            d: -2.76,
+            iters: 60,
+            discs: 40,
+            zoom: 0.5
+        }
+    },
+    "n": {
+        name: "N",
+        description: "description, todo",
+        shader: "shaders/attractors/n.wgsl",
+        paramCount: 4,
+        values: {
+            a: 1.68,
+            b: -3,
+            c: 2.12,
+            d: -2.12,
+            zoom: 0.2
+        }
+    },
+    "not_bedhead": {
+        name: "Not Bedhead",
+        description: "description, todo",
+        shader: "shaders/attractors/not_bedhead.wgsl",
+        paramCount: 2,
+        values: {
+            a: 3,
+            b: 1.25
+        }
+    },
+    "simone_fractal": {
+        name: "Simone Fractal",
+        description: "description, todo",
+        shader: "shaders/attractors/simone_2.wgsl",
+        paramCount: 4,
+        values: {
+            a: 1,
+            b: 1,
+            c: 1, 
+            d: 1,
+            iters: 60,
+            discs: 40
+        }
+    },
+    "simone": {
+        name: "Simone",
+        description: "description, todo",
+        shader: "shaders/attractors/simone.wgsl",
+        paramCount: 2,
+        values: {
+            a: 0.075,
+            b: 2,
+            zoom: 0.75,
+            iters: 50,
+            discs: 30
+        }
+    }
+};
+
+const attractorButtonsContainer = q("#attractor-buttons");
+
+async function setAttractor(id, skipRender) {
+
+    const attr = ATTRACTORS[id];
+
+    await createParticleModule(attr.shader);
+    createParticlePipeline();
+    createBindGroups();
+
+    a = attr.values.a ?? a;
+    b = attr.values.b ?? b;
+    c = attr.values.c ?? c;
+    d = attr.values.d ?? d;
+    zoom = attr.values.zoom ?? 0.33;
+    iters = attr.values.iters ?? 22;
+    discs = attr.values.discs ?? 2;
+
+    updateNumberInputs();
+
+    for (const id of Object.keys(ATTRACTORS)) {
+        ATTRACTORS[id].button.classList.remove("active");
+    }
+
+    attr.button.classList.add("active");
+
+    if (!skipRender) {
+        draw();
+    }
+
+}
+
+for (const id of Object.keys(ATTRACTORS)) {
+    
+    const button = document.createElement("button");
+    button.className = "attractor-button";
+    button.innerText = ATTRACTORS[id].name;
+    button.onclick = () => setAttractor(id);
+
+    ATTRACTORS[id].button = button;
+
+    attractorButtonsContainer.appendChild(button);
+
+}
+
 const canvas = q("#canvas");
 const colorPreviewCanvas = q("#color-preview");
 const context = canvas.getContext("webgpu");
@@ -613,7 +800,7 @@ let resolutionY = 500;
 let particleCount = 1_000_000;
 let particleIntensity = 0.3;
 let timeGPU = true;
-let iters = 20;
+let iters = 22;
 let discs = 2;
 let startRange = 2;
 let a = 2;
@@ -623,6 +810,7 @@ let d = -1;
 let panX = 0;
 let panY = 0;
 let zoom = 0.33;
+let attractor = "clifford";
 
 let gradientColorsUsed = 3;
 let gradientColors = [ 
@@ -798,7 +986,7 @@ const colorPreviewUniformsViews = {
 
 // --- modules --- 
 
-async function createShaderModule(label, filename) {
+async function createShaderModule(label, filename, replacements = {}) {
 
     async function constructCode(filename) {
 
@@ -817,26 +1005,42 @@ async function createShaderModule(label, filename) {
 
     }
 
+    let code = await constructCode(filename);
+
+    for (const r of Object.keys(replacements)) {
+        code = code.replaceAll(r, await constructCode(replacements[r]));
+    }
+
     return device.createShaderModule({
         label,
-        code: await constructCode(filename)
+        code
     });
 
 }
 
-const particleModule = await createShaderModule("particle attractor module", "shaders/core/particles.wgsl");
+let particleModule;
+async function createParticleModule(attractorShader) {
+    particleModule = await createShaderModule("particle attractor module", "shaders/core/particles.wgsl", {
+        "//#attractor": attractorShader
+    });
+}
+
 const colorizationModule = await createShaderModule("colorization module", "shaders/core/colorization.wgsl");
 const colorPreviewModule = await createShaderModule("color preview module", "shaders/core/color_preview.wgsl");
 
 // --- pipelines ---
 
-const particlePipeline = device.createComputePipeline({
-    label: "particle attractor pipeline",
-    layout: "auto",
-    compute: {
-        module: particleModule
-    }
-});
+let particlePipeline;
+
+function createParticlePipeline() {
+    particlePipeline = device.createComputePipeline({
+        label: "particle attractor pipeline",
+        layout: "auto",
+        compute: {
+            module: particleModule
+        }
+    });
+}
 
 const colorizationPipeline = device.createRenderPipeline({
     label: "colorization pipeline",
@@ -923,7 +1127,7 @@ const colorPreviewBindGroup = device.createBindGroup({
     ]
 });
 
-createBindGroups();
+await setAttractor(attractor, true);
 
 // --- timing --- 
 

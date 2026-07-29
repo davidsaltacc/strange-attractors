@@ -43,12 +43,7 @@ fn random_from_vec2u(seed: vec2u) -> f32 { return float_construct_from_u32(hash_
 fn random_from_vec3u(seed: vec3u) -> f32 { return float_construct_from_u32(hash_vec3u(seed)); }
 fn random_from_vec4u(seed: vec4u) -> f32 { return float_construct_from_u32(hash_vec4u(seed)); }
 
-// -----------
-
-// https://www.williamrchase.com/writing/2019-02-28-strange-attractors-12-months-of-art-february
-// lots of good ideas
-
-//#include shaders/attractors/clifford.wgsl
+//#attractor
 
 const workgroupSizeX = 8;
 const workgroupSizeY = 8;
