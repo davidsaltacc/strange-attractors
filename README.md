@@ -15,3 +15,5 @@ a small project to render strange attractors on the gpu using webgpu with high p
 - try to figure out how to reduce noise
 - option for exponential/logarithmic? intensity scaling, because just adjusting the colormap isn't enough sometimes (especially with the "difficult" attractors, like bad hair day)
 - single-particle mode (will allow to enable gumowski-mira and hopalong, and i suspect it will heavily reduce noisiness on some attractors)
+- randomize/vary params button
+- automatically increase intensity when zooming manually (and option to toggle it)
