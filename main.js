@@ -648,7 +648,7 @@ const ATTRACTORS = {
     },
     "fractal_dream": {
         name: "Fractal Dream",
-        description: "The Fractal Dream attractor, also called the \"Latöörcarfian (a fictional race) dream\", was first defined in the book \"Chaos In Wondeland\" by Clifford A. Pickover, who the Clifford attracter is also named after. I have only gazed over the book so far, but it looks fun to read, and I encourage you to do the same if you like a good mix of sci-fi and maths.",
+        description: "The Fractal Dream attractor, also called the \"Latöörcarfian (a fictional race) dream\", was first defined in the book \"Chaos In Wonderland\" by Clifford A. Pickover, who the Clifford attractor is also named after. I have only gazed over the book so far, but it looks fun to read, and I encourage you to do the same if you like a good mix of sci-fi and maths.",
         shader: "shaders/attractors/fractal_dream.wgsl",
         paramCount: 4,
         values: {
