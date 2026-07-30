@@ -605,78 +605,74 @@ function setupGradientStopEdits(forceSelected = null) {
 }
 
 const ATTRACTORS = {
+    "bad_hair_day": {
+        name: "Bad Hair Day",
+        description: "The bad hair day attractor was inspired by <a target=\"_blank\" href=\"https://paulbourke.net/fractals/2dmap/\">Paul Bourke's renders</a>, who nicknamed the attractor, and got the equations from <a target=\"_blank\" href=\"https://www.r-bloggers.com/2019/10/strange-attractors-an-r-experiment-about-maths-recursivity-and-creative-coding/\">an article by Antonio Sánchez. More presets for this attractor can be found on Paul Bourke's page.</a>",
+        shader: "shaders/attractors/bad_hair_day.wgsl",
+        paramCount: 14,
+        values: {
+            params: [ 1.1, -0.3, -0.1, 0.6, -1.2, -0.7, 0.2, 1.4, 1.4, 0, -0.3, -0.5, -1.1, -0.5 ],
+            iters: 80,
+            discs: 60,
+            zoom: 0.125
+        }
+    },
     "bedhead": {
         name: "Bedhead",
-        description: "description, todo",
+        description: "The Bedhead attractor was, according to <a target=\"_blank\" href=\"https://softologyblog.wordpress.com/2017/03/04/2d-strange-attractors/\">this blog post</a> discovered by Ivan Emrich, although the link on the page is dead and I could not find any other sources confirming this.",
         shader: "shaders/attractors/bedhead.wgsl",
         paramCount: 2,
         values: {
-            a: 2,
-            b: 3,
+            params: [ 2, 3 ],
             iters: 40,
             discs: 20
         }
     },
     "clifford": {
         name: "Clifford",
-        description: "description, todo",
+        description: "The Clifford attractor was documented and attributed by Clifford A. Pickover, who has, among other things, also come up with a way to visualize the mandelbrot set, namely Pickover stalks, which can be rendered using <a target=\"_blank\" href=\"https://fractals.top/\">one of my other projects</a>.",
         shader: "shaders/attractors/clifford.wgsl",
         paramCount: 4,
         values: {
-            a: 2,
-            b: 2,
-            c: 1,
-            d: -1
+            params: [ 2, 2, 1, -1 ]
         }
     },
     "de_jong": {
         name: "De Jong",
-        description: "description, todo",
+        description: "The De Jong attractor was first documented in <a target=\"_blank\" href=\"https://paulbourke.net/fractals/peterdejong/peterdejong.pdf\">a scientifc article</a> by Alexander K. Dewdney, which mentioned a reader from the Netherlands, named Peter de Jong, suggesting this iteration formula.",
         shader: "shaders/attractors/de_jong.wgsl",
         paramCount: 4,
         values: {
-            a: -2,
-            b: -2,
-            c: -1,
-            d: 2
+            params: [ -2, -2, -1, 2 ]
         }
     },
     "fractal_dream": {
         name: "Fractal Dream",
-        description: "description, todo",
+        description: "The Fractal Dream attractor, also called the \"Latöörcarfian (a fictional race) dream\", was first defined in the book \"Chaos In Wondeland\" by Clifford A. Pickover, who the Clifford attracter is also named after. I have only gazed over the book so far, but it looks fun to read, and I encourage you to do the same if you like a good mix of sci-fi and maths.",
         shader: "shaders/attractors/fractal_dream.wgsl",
         paramCount: 4,
         values: {
-            a: 2,
-            b: 2,
-            c: -1,
-            d: 1
+            params: [ 2, 2, -1, 1 ]
         }
     },
     "ikeda": {
         name: "Ikeda",
-        description: "description, todo",
+        description: "The Ikeda attractor, or the Ikeda map, is named after Kensuke Ikeda, who introduced it as a model for the behavior of light within a nonlinear optical resonator. Whatever that means, it also happens to make for a neat strange attractor.",
         shader: "shaders/attractors/ikeda.wgsl",
         paramCount: 4,
         values: {
-            a: -0.6,
-            b: -0.95,
-            c: 1.2,
-            d: 7,
+            params: [ -0.6, -0.95, 1.2, 7 ],
             iters: 40,
             discs: 20
         }
     },
     "juan": {
         name: "Juan",
-        description: "description, todo",
+        description: "The Juan attractor was inspired by <a target=\"_blank\" href=\"https://paulbourke.net/fractals/juan2/\">Paul Bourke's renders</a>, who also nicknamed the attractor. It was, among others, discovered and documented by Juan José Salinas Catrián.",
         shader: "shaders/attractors/juan.wgsl",
         paramCount: 4,
         values: {
-            a: -0.76,
-            b: -0.66,
-            c: 1.81,
-            d: -2.76,
+            params: [ -0.76, -0.66, 1.81, -2.76 ],
             iters: 60,
             discs: 40,
             zoom: 0.5
@@ -684,49 +680,53 @@ const ATTRACTORS = {
     },
     "n": {
         name: "N",
-        description: "description, todo",
+        description: "The Juan attractor was inspired by <a target=\"_blank\" href=\"https://paulbourke.net/fractals/juan2/\">Paul Bourke's renders</a>. The source of it's name should be pretty obvious. It was, among others, discovered and documented by Juan José Salinas Catrián.",
         shader: "shaders/attractors/n.wgsl",
         paramCount: 4,
         values: {
-            a: 1.68,
-            b: -3,
-            c: 2.12,
-            d: -2.12,
+            params: [ 1.68, -3, 2.12, -2.12 ],
             zoom: 0.2
         }
     },
     "not_bedhead": {
         name: "Not Bedhead",
-        description: "description, todo",
+        description: "<a target=\"_blank\" href=\"https://piellardj.github.io/strange-attractors-webgl/\">This webpage</a> claims this to be a bedhead attractor, other sources I have found claim the other, very similary implementation to be the bedhead attractor. Because this appeared to be the only source claiming this was the bedhead attractor, I decided to rule this one the impostor over the other.",
         shader: "shaders/attractors/not_bedhead.wgsl",
         paramCount: 2,
         values: {
-            a: 3,
-            b: 1.25
+            params: [ 3, 1.25 ]
+        }
+    },
+    "sprott": {
+        name: "Sprott",
+        description: "The Sprott attractor was inspired by <a target=\"_blank\" href=\"https://paulbourke.net/fractals/sprott/\">Paul Bourke's renders</a>. Bourke was inspired by <a target=\"_blank\" href=\"https://paulbourke.net/fractals/sprott/paper203.pdf\">an article</a> by Julien C. Sprott, who possibly worked together with Clifford A. Pickover, as <a target=\"blank\" href=\"https://sprott.physics.wisc.edu/pickover/home.htm\">Pickover's website</a> appears to be hosted on Sprott's servers.",
+        shader: "shaders/attractors/polynomial.wgsl",
+        paramCount: 12,
+        values: {
+            params: [ -0.7, -0.4, 0.5, -1, -0.9, -0.8, 0.5, 0.5, 0.3, 1., -0.1, -0.9 ], // bourke lovingly calls this one "FIRCDERRPVLD".
+            iters: 100,
+            discs: 60,
+            zoom: 0.75
         }
     },
     "simone_fractal": {
         name: "Simone Fractal",
-        description: "description, todo",
+        description: "The Simone Fractal attractor was inspired by <a target=\"_blank\" href=\"https://paulbourke.net/fractals/simone/\">Paul Bourke's renders</a>, who also nicknamed it. It is credited to Simone Conradi, and I took the liberty of turning all the fixed numbers into variable parameters, because modifying them in any way introduces neat changes with lots of artistic potential.",
         shader: "shaders/attractors/simone_2.wgsl",
-        paramCount: 4,
+        paramCount: 12,
         values: {
-            a: 1,
-            b: 1,
-            c: 1, 
-            d: 1,
+            params: [ 0.4, 0.32, 0.7, -0.8, 0.76, -0.82, 0.4, 0.37, 0.35, 0.85, 0.32, 0.47 ],
             iters: 60,
             discs: 40
         }
     },
     "simone": {
         name: "Simone",
-        description: "description, todo",
+        description: "The Simone attractor was inspired by <a target=\"_blank\" href=\"https://paulbourke.net/fractals/simone_orbits/\">Paul Bourke's renders</a>. It is credited to Simone Conradi.",
         shader: "shaders/attractors/simone.wgsl",
         paramCount: 2,
         values: {
-            a: 0.075,
-            b: 2,
+            params: [ 0.075, 2 ],
             zoom: 0.75,
             iters: 50,
             discs: 30
@@ -743,16 +743,28 @@ async function setAttractor(id, skipRender) {
     await createParticleModule(attr.shader);
     createParticlePipeline();
     createBindGroups();
+    
+    for (let i = 0; i < attr.values.params.length; i++) {
+        params[i] = attr.values.params[i];
+    }
 
-    a = attr.values.a ?? a;
-    b = attr.values.b ?? b;
-    c = attr.values.c ?? c;
-    d = attr.values.d ?? d;
+    let i = 0;
+    for (const input of qa("#params-container .value-input-container")) {
+        if (i >= attr.paramCount) {
+            input.classList.add("hidden");
+        } else {
+            input.classList.remove("hidden");
+        }
+        i++;
+    }
+
     zoom = attr.values.zoom ?? 0.33;
     iters = attr.values.iters ?? 22;
     discs = attr.values.discs ?? 2;
 
     updateNumberInputs();
+
+    q("#attractor-desc").innerHTML = attr.description;
 
     for (const id of Object.keys(ATTRACTORS)) {
         ATTRACTORS[id].button.classList.remove("active");
@@ -803,10 +815,7 @@ let timeGPU = true;
 let iters = 22;
 let discs = 2;
 let startRange = 2;
-let a = 2;
-let b = 2;
-let c = 1;
-let d = -1;
+let params = [ 2, 2, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
 let panX = 0;
 let panY = 0;
 let zoom = 0.33;
@@ -825,10 +834,17 @@ let canDraw = false;
 
 setupGradientStopEdits();
 
-setupNumberInput("value-a", () => a ?? 0, v => { a = v ?? a; draw(); });
-setupNumberInput("value-b", () => b ?? 0, v => { b = v ?? b; draw(); });
-setupNumberInput("value-c", () => c ?? 0, v => { c = v ?? c; draw(); });
-setupNumberInput("value-d", () => d ?? 0, v => { d = v ?? d; draw(); });
+for (let i = 0; i < 16; i++) {
+    const id = [ "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p" ][i];
+    const parameterUi = q("#param-template").cloneNode(true);
+
+    parameterUi.innerHTML = parameterUi.innerHTML.replaceAll("ID", id);
+    parameterUi.classList.remove("hidden");
+    parameterUi.id = null;
+
+    q("#params-container").appendChild(parameterUi);
+    setupNumberInput("value-" + id, () => params[i] ?? 0, v => { params[i] = v ?? params[i]; draw(); });
+}
 
 setupNumberInput("value-particle-intensity", () => particleIntensity ?? 1, v => { particleIntensity = v ?? particleIntensity; draw(); }, true, 0, 1);
 setupNumberInput("value-particle-count", () => particleCount ?? 1000, v => { particleCount = v ?? particleCount; draw(); }, false);
@@ -936,7 +952,7 @@ function createParticleCountBuffer() {
 createParticleCountBuffer();
 
 const particleUniformBuffer = device.createBuffer({
-    size: 48,
+    size: 112,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
 });
 
@@ -952,18 +968,15 @@ const colorPreviewUniformBuffer = device.createBuffer({
 
 // --- uniform utility stuff ---
 
-const particleUniformsValues = new ArrayBuffer(48);
+const particleUniformsValues = new ArrayBuffer(112);
 const particleUniformsViews = {
     size: new Uint32Array(particleUniformsValues, 0, 2),
     iters: new Uint32Array(particleUniformsValues, 8, 1),
     discs: new Uint32Array(particleUniformsValues, 12, 1),
     startRange: new Uint32Array(particleUniformsValues, 16, 1),
-    a: new Float32Array(particleUniformsValues, 20, 1),
-    b: new Float32Array(particleUniformsValues, 24, 1),
-    c: new Float32Array(particleUniformsValues, 28, 1),
-    d: new Float32Array(particleUniformsValues, 32, 1),
-    zoom: new Float32Array(particleUniformsValues, 36, 1),
-    pan: new Float32Array(particleUniformsValues, 40, 2)
+    params: new Float32Array(particleUniformsValues, 32, 16),
+    zoom: new Float32Array(particleUniformsValues, 96, 1),
+    pan: new Float32Array(particleUniformsValues, 104, 2)
 };
 
 const colorizationUniformsValues = new ArrayBuffer(208);
@@ -1181,10 +1194,10 @@ function draw(clearParticles = true) {
     particleUniformsViews.pan[0] = panX;
     particleUniformsViews.pan[1] = panY;
     particleUniformsViews.zoom[0] = zoom;
-    particleUniformsViews.a[0] = a;
-    particleUniformsViews.b[0] = b;
-    particleUniformsViews.c[0] = c;
-    particleUniformsViews.d[0] = d;
+    
+    for (let i = 0; i < 16; i++) {
+        particleUniformsViews.params[i] = params[i];
+    }
 
     colorizationUniformsViews.particleIntensity[0] = particleIntensity;
     

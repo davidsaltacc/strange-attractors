@@ -1,7 +1,7 @@
 
-fn attractor(v: vec2f, a: f32, b: f32, c: f32, d: f32) -> vec2f {
+fn attractor(v: vec2f, p: array<f32, 16>) -> vec2f {
     return vec2f(
-        sin(a * v.y) + c * cos(a * v.x),
-        sin(b * v.x) + d * cos(b * v.y)
+        sin(p[0] * v.y) + p[2] * cos(p[0] * v.x),
+        sin(p[1] * v.x) + p[3] * cos(p[1] * v.y)
     );
 }

@@ -6,10 +6,7 @@ struct Uniforms {
     iters: u32,
     discs: u32,
     startRange: u32,
-    a: f32,
-    b: f32, 
-    c: f32,
-    d: f32,
+    params: array<vec4<f32>, 4>,
     zoom: f32,
     pan: vec2f
 };
@@ -89,9 +86,27 @@ fn computeParticles(
         oY = (f32(dimY) - f32(dimX)) / 2.;
     }
 
+    var params = array<f32, 16>(); // yes, this is neccessary
+    params[0] = uniforms.params[0][0];
+    params[1] = uniforms.params[0][1];
+    params[2] = uniforms.params[0][2];
+    params[3] = uniforms.params[0][3];
+    params[4] = uniforms.params[1][0];
+    params[5] = uniforms.params[1][1];
+    params[6] = uniforms.params[1][2];
+    params[7] = uniforms.params[1][3];
+    params[8] = uniforms.params[2][0];
+    params[9] = uniforms.params[2][1];
+    params[10] = uniforms.params[2][2];
+    params[11] = uniforms.params[2][3];
+    params[12] = uniforms.params[3][0];
+    params[13] = uniforms.params[3][1];
+    params[14] = uniforms.params[3][2];
+    params[15] = uniforms.params[3][3];
+
     for (var i = 0u; i < uniforms.iters; i++) {
 
-        pos = attractor(pos, uniforms.a, uniforms.b, uniforms.c, uniforms.d);
+        pos = attractor(pos, params);
 
         if (i >= uniforms.discs) {
 
