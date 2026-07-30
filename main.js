@@ -17,7 +17,7 @@ const device = await adapter?.requestDevice({
 });
 
 if (!device) {
-    [ alert, e => { throw new Error(e) } ].forEach(f => f("WebGPU does not appear to be supported in your browser."));
+    [ alert, e => { throw new Error(e) } ].forEach(f => f("WebGPU does not appear to be supported in your browser. This could also be because you are insecurely accessing this page, in that case please switch to HTTPS."));
 }
 
 function reshapeDispatches(n) {
